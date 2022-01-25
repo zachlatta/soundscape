@@ -12,6 +12,7 @@ To-Do items:
 - Looping audio
 - Showing play progress indicator with seeking
 - Pausing audio
+- Volume control
 - Backend to take YouTube videos and convert them to audio
 - Sharable links
 
