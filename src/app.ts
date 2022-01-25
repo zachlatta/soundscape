@@ -43,7 +43,7 @@ class SoundSource {
         this.url = url
         this.state = SoundSourceState.Load
 
-        this.el = elementFromHTML(this.html())
+        this.el = elementFromHTML(this.outerHTML())
 
         this.sound = new Howl({
             src: [url],
@@ -57,7 +57,15 @@ class SoundSource {
         this.destroyCallback = destroyCallback
     }
 
-    html() {
+    outerHTML() {
+        return `
+            <div class="soundSource" id="${this.id}">
+                ${this.innerHTML()}
+            </div>
+        `
+    }
+
+    innerHTML() {
         const stateText = [
             `Loading ${this.url}...`,
             `Error loading ${this.url}.`,
@@ -66,14 +74,12 @@ class SoundSource {
         ][this.state]
 
         return `
-            <div class="soundSource" id="${this.id}">
-                <p>${stateText} <button id="${this.destroyId()}">x</button></p>
-            </div>
+            <p>${stateText} <button id="${this.destroyId()}">x</button></p>
         `
     }
 
     rerender() {
-        this.el.innerHTML = this.html()
+        this.el.innerHTML = this.innerHTML()
 
         // teardown, when destroy button is clicked
         document.getElementById(this.destroyId()).addEventListener('click', e => {
