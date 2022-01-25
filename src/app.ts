@@ -36,6 +36,9 @@ class SoundSource {
 
     destroyCallback: (SoundSource) => void
 
+    dragXOffset: number
+    dragYOffset: number
+
     private destroyId() { return `${this.id}-destroy` }
 
     constructor(url: string, destroyCallback: (SoundSource) => void) {
@@ -55,6 +58,9 @@ class SoundSource {
         }) // html5 enables streaming audio
 
         this.destroyCallback = destroyCallback
+
+        this.dragXOffset = 0
+        this.dragYOffset = 0
     }
 
     outerHTML() {
@@ -130,14 +136,6 @@ let xOffset = 0
 let yOffset = 0
 
 const dragStart = (e) => {
-    if (e.type === "touchstart") {
-        initialX = e.touches[0].clientX - xOffset
-        initialY = e.touches[0].clientY - yOffset
-    } else {
-        initialX = e.clientX - xOffset
-        initialY = e.clientY - yOffset
-    }
-
     active = soundSources.find(s => {
         if (s.el === e.target) {
             return true
@@ -154,6 +152,18 @@ const dragStart = (e) => {
 
         return match
     })
+
+    if (active == null) {
+        return
+    }
+
+    if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - active.dragXOffset
+        initialY = e.touches[0].clientY - active.dragYOffset
+    } else {
+        initialX = e.clientX - active.dragXOffset
+        initialY = e.clientY - active.dragYOffset
+    }
 }
 
 const dragEnd = (e) => {
@@ -175,14 +185,13 @@ const drag = (e) => {
             currentY = e.clientY - initialY
         }
 
-        xOffset = currentX
-        yOffset = currentY
+        active.dragXOffset = currentX
+        active.dragYOffset = currentY
 
         active.el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
     }
 }
-// TODO
-console.log(e.target)
+
 soundSourcesDiv.addEventListener('touchstart', dragStart, false)
 soundSourcesDiv.addEventListener('touchend', dragEnd, false)
 soundSourcesDiv.addEventListener('touchmove', drag, false)
