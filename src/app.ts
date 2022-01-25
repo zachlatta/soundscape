@@ -1,3 +1,5 @@
+import { Howl } from 'howler'
+
 //// UTILITIES
 
 import { v4 as uuidLib } from 'uuid'
@@ -15,12 +17,23 @@ const welcome = document.getElementById('welcome')
 const welcomeButton = document.getElementById('welcomeButton')
 
 const app = document.getElementById('app')
+const soundSourcesDiv = document.getElementById('soundSources')
 const addSoundSourceForm = document.getElementById('addSoundSource') as HTMLFormElement
+
+enum SoundSourceState {
+    Load,
+    LoadError,
+    Play,
+    PlayError
+}
 
 class SoundSource {
     id: string
     url: string
+    state: SoundSourceState
     el: HTMLElement
+    sound: Howl
+
     destroyCallback: (SoundSource) => void
 
     private destroyId() { return `${this.id}-destroy` }
@@ -28,21 +41,53 @@ class SoundSource {
     constructor(url: string, destroyCallback: (SoundSource) => void) {
         this.id = uuid()
         this.url = url
-        this.el = elementFromHTML(`
-            <div class="soundSource" id="${this.id}">
-                <p>${this.url}</p>
-                <button id="${this.destroyId()}">x</button>
-            </div>
-        `)
+        this.state = SoundSourceState.Load
+
+        this.el = elementFromHTML(this.html())
+
+        this.sound = new Howl({
+            src: [url],
+            html5: true,
+
+            onloaderror: () => { this.state = SoundSourceState.LoadError; this.rerender() },
+            onplay: () => { this.state = SoundSourceState.Play; this.rerender() },
+            onplayerror: () => { this.state = SoundSourceState.PlayError; this.rerender() }
+        }) // html5 enables streaming audio
+
         this.destroyCallback = destroyCallback
+    }
+
+    html() {
+        const stateText = [
+            `Loading ${this.url}...`,
+            `Error loading ${this.url}.`,
+            `Playing ${this.url}!`,
+            `Error playing ${this.url}`
+        ][this.state]
+
+        return `
+            <div class="soundSource" id="${this.id}">
+                <p>${stateText} <button id="${this.destroyId()}">x</button></p>
+            </div>
+        `
+    }
+
+    rerender() {
+        this.el.innerHTML = this.html()
+
+        // teardown, when destroy button is clicked
+        document.getElementById(this.destroyId()).addEventListener('click', e => {
+            this.sound.stop()
+
+            this.destroyCallback(this)
+        })
     }
 
     appendTo(parentInDocument: HTMLElement) {
         parentInDocument.appendChild(this.el)
+        this.rerender()
 
-        document.getElementById(this.destroyId()).addEventListener('click', e => {
-            this.destroyCallback(this)
-        })
+        this.sound.play()
     }
 }
 
@@ -64,7 +109,7 @@ addSoundSourceForm.addEventListener('submit', e => {
     })
 
     soundSources.push(soundSource)
-    soundSource.appendTo(app)
+    soundSource.appendTo(soundSourcesDiv)
 
     addSoundSourceForm.reset()
 })
