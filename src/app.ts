@@ -120,6 +120,77 @@ addSoundSourceForm.addEventListener('submit', e => {
     addSoundSourceForm.reset()
 })
 
+// set up drag and drop logic, from https://www.kirupa.com/html5/drag.htm
+let active
+let currentX
+let currentY
+let initialX
+let initialY
+let xOffset = 0
+let yOffset = 0
+
+const dragStart = (e) => {
+    if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset
+        initialY = e.touches[0].clientY - yOffset
+    } else {
+        initialX = e.clientX - xOffset
+        initialY = e.clientY - yOffset
+    }
+
+    active = soundSources.find(s => {
+        if (s.el === e.target) {
+            return true
+        }
+
+        // TODO: Right now it only checks direct children, should be changed to
+        // recurse through all children.
+        let match = false
+        s.el.childNodes.forEach(child => {
+            if (child === e.target) {
+                match = true
+            }
+        })
+
+        return match
+    })
+}
+
+const dragEnd = (e) => {
+    initialX = currentX
+    initialY = currentY
+
+    active = null
+}
+
+const drag = (e) => {
+    if (active) {
+        e.preventDefault()
+
+        if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX - initialX
+            currentY = e.touches[0].clientY - initialY
+        } else {
+            currentX = e.clientX - initialX
+            currentY = e.clientY - initialY
+        }
+
+        xOffset = currentX
+        yOffset = currentY
+
+        active.el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
+    }
+}
+// TODO
+console.log(e.target)
+soundSourcesDiv.addEventListener('touchstart', dragStart, false)
+soundSourcesDiv.addEventListener('touchend', dragEnd, false)
+soundSourcesDiv.addEventListener('touchmove', drag, false)
+
+soundSourcesDiv.addEventListener('mousedown', dragStart, false)
+soundSourcesDiv.addEventListener('mouseup', dragEnd, false)
+soundSourcesDiv.addEventListener('mousemove', drag, false)
+
 // start the app when they click the welcome button!
 const startApp = () => {
     welcome.style.display = 'none'
