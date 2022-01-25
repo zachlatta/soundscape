@@ -10,8 +10,9 @@ To-Do items:
 
 - Positional audio
 - Looping audio
-- Showing play progress indicator
+- Showing play progress indicator with seeking
 - Pausing audio
+- Backend to take YouTube videos and convert them to audio
 - Sharable links
 
 Stretch: Render to video?
