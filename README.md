@@ -17,6 +17,9 @@ Start development server:
 To-Do items:
 
 - Positional audio
+
+Need to rip out Howler.js to support both streaming audio from a URL and spatialization, or figure out a way to stream audio to Howler.js Web Audio API backend.
+
 - Looping audio
 - Showing play progress indicator with seeking
 - Pausing audio
