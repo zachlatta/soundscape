@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Attempt to make a little soundscape creator on the web",
   "scripts": {
-    "dev": "./node_modules/.bin/esbuild --bundle src/app.ts --outfile=www/main.js --servedir=www  --minify --sourcemap",
+    "dev": "./node_modules/.bin/esbuild --bundle frontend/app.ts --outfile=frontend/app.js --servedir=frontend  --minify --sourcemap",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
