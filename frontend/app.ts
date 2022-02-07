@@ -50,7 +50,6 @@ class SoundSource {
 
         this.sound = new Howl({
             src: [url],
-            html5: true,
 
             onloaderror: () => { this.state = SoundSourceState.LoadError; this.rerender() },
             onplay: () => { this.state = SoundSourceState.Play; this.rerender() },
@@ -187,6 +186,8 @@ const drag = (e) => {
 
         active.dragXOffset = currentX
         active.dragYOffset = currentY
+
+        active.sound.pos(currentX / 80, currentY / 80)
 
         active.el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
     }
